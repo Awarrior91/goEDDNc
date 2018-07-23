@@ -14,11 +14,9 @@ const ConentType = "application/json; charset=utf-8"
 
 func Ts(ts time.Time) string { return ts.Format(time.RFC3339) }
 
-func NewMessage(ts string, sys string, x, y, z float64) map[string]interface{} {
+func NewMessage(ts string) map[string]interface{} {
 	res := make(map[string]interface{})
 	res["timestamp"] = ts
-	res["StarSystem"] = sys
-	res["StarPos"] = []float64{x, y, z}
 	return res
 }
 
@@ -31,6 +29,7 @@ type Upload struct {
 		SwName    string `json:"softwareName"`
 		SwVersion string `json:"softwareVersion"`
 	}
+	Http http.Client
 }
 
 type eddnMsg struct {
@@ -60,7 +59,7 @@ func (u *Upload) Send(scm ScmId, msg interface{}) error {
 	}
 	if !u.DryRun {
 		rd := bytes.NewBuffer(jmsg)
-		resp, err := http.Post(UploadURL, ConentType, rd)
+		resp, err := u.Http.Post(UploadURL, ConentType, rd)
 		if err != nil {
 			return err
 		}
