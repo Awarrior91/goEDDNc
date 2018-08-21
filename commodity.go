@@ -8,24 +8,6 @@ import (
 	"git.fractalqb.de/fractalqb/ggja"
 )
 
-var cmdtCatCopy = map[string]bool{
-	"$MARKET_category_chemicals;":            true,
-	"$MARKET_category_consumer_items;":       true,
-	"$MARKET_category_drugs;":                true,
-	"$MARKET_category_foods;":                true,
-	"$MARKET_category_industrial_materials;": true,
-	"$MARKET_category_machinery;":            true,
-	"$MARKET_category_medicines;":            true,
-	"$MARKET_category_metals;":               true,
-	"$MARKET_category_minerals;":             true,
-	"$MARKET_category_salvage;":              true,
-	"$MARKET_category_slaves;":               true,
-	"$MARKET_category_technology;":           true,
-	"$MARKET_category_textiles;":             true,
-	"$MARKET_category_waste;":                true,
-	"$MARKET_category_weapons;":              true,
-}
-
 var cmdtFromJMarket = map[string]string{
 	"meanPrice":     "MeanPrice",
 	"buyPrice":      "BuyPrice",
@@ -37,18 +19,6 @@ var cmdtFromJMarket = map[string]string{
 }
 
 func cmdtConvert(jMkt ggja.GenObj) (res ggja.GenObj, err error) {
-	//TODO: from discord ecdn
-	//msg = {
-	// 'timestamp': je['timestamp'],
-	// 'systemName': je['StarSystem'],
-	// 'stationName': je['StationName'],
-	// 'marketId': je['MarketID'],
-	// 'commodities': [{
-	//   'name': c['Name'][1:-5] if c['Name'][0] == '$' and c['Name'][-5:] == '_name' else c['Name'],
-	//   '…': c['…'],
-	//   'statusFlags': c['StatusFlags'] if 'StatusFlags' in c else []
-	//  } for c in je['Items'] if 'nonmarketable' not in c['Category'].lower()]
-	//}
 	defer func() {
 		if x := recover(); x != nil {
 			res = nil
@@ -56,27 +26,21 @@ func cmdtConvert(jMkt ggja.GenObj) (res ggja.GenObj, err error) {
 			err = fmt.Errorf("%s: %s", err, string(j))
 		}
 	}()
-	mkt := ggja.Obj{Bare: jMkt}
-	mcat := mkt.MStr("Category")
-	if cpy, ok := cmdtCatCopy[mcat]; !ok {
-		return nil, fmt.Errorf("unknown category of market item: '%s'", mcat)
-	} else if cpy {
-		res = make(ggja.GenObj)
-		name := mkt.MStr("Name")
-		if strings.HasPrefix(name, "$") {
-			name = name[1:]
-		}
-		if strings.HasSuffix(name, ";") {
-			name = name[:len(name)-1]
-		}
-		if strings.HasSuffix(name, "_name") {
-			name = name[:len(name)-5]
-		}
-		res["name"] = name
-		for edcNm, mktNm := range cmdtFromJMarket {
-			if tmp, ok := jMkt[mktNm]; ok {
-				res[edcNm] = tmp
-			}
+	name := (&ggja.Obj{Bare: jMkt}).MStr("Name") // heavy just for error handling?
+	res = make(ggja.GenObj)
+	if strings.HasPrefix(name, "$") {
+		name = name[1:]
+	}
+	if strings.HasSuffix(name, ";") {
+		name = name[:len(name)-1]
+	}
+	if strings.HasSuffix(name, "_name") {
+		name = name[:len(name)-5]
+	}
+	res["name"] = name
+	for edcNm, mktNm := range cmdtFromJMarket {
+		if tmp, ok := jMkt[mktNm]; ok {
+			res[edcNm] = tmp
 		}
 	}
 	return res, err
