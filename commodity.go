@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fractalqb/ggja"
+	"github.com/Awarrior91/ggja"
 )
 
 var cmdtFromJMarket = map[string]string{
