@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"git.fractalqb.de/fractalqb/nmconv"
+	"github.com/fractalqb/nmconv"
 )
 
 var outfitNmc = nmconv.Conversion{

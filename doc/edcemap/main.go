@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"git.fractalqb.de/fractalqb/ggja"
+	"github.com/fractalqb/ggja"
 )
 
 func jFail(err error) {
